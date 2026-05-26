@@ -14,18 +14,45 @@ permission:
 
 Принимая от пользователя условие задачи (новая фича, баг-фикс, регрессия), создавай детальный чек-лист проверок.
 
+## Vault location
+
+> **НАСТРОЙКА:** Замени путь ниже на путь к своей папке Obsidian vault.
+> Пример для Mac: `/Users/ТВОЕ_ИМЯ/Documents/Obsidian`
+> Пример для Windows: `C:\Users\ТВОЕ_ИМЯ\Documents\Obsidian`
+
+`/Users/YOUR_USERNAME/Documents/Obsidian`
+
+## Модули и их slug
+
+| Модуль | Slug | Пакет |
+|--------|------|-------|
+| HelpDesk | helpdesk | ithive.helpdesk |
+| База знаний | knowledgebase | ithive.knowledgebase |
+| Библиотека | library | ithive.library |
+| Брендирование Битрикс24 | branding | ithive.changeportaldefaultheme |
+| Геймификация | gamification | ithive.gamification |
+| Главная страница | homepage | ithive.homepage |
+| Интерактивные подсказки | hints | ithive.hints |
+| Карта офиса + Бронирование | workplaces | ithive.workplaces |
+| Корпоративный университет | university | ithive.ipr |
+| Мультиязычность | multilang | ithive.b24multilanguage |
+| Настройка уведомлений | notifications | ithive.imsettingsforall |
+| Опросы | polls | ithive.polls |
+| Оценка 360 | assessment360 | ithive.assessment360 |
+| Управление целями. Дерево | goals-tree | ithive.goalsmanagement2 |
+| Управление целями. Каскад | goals-cascade | ithive.goalsmanagement |
+| Фото и видео галерея | mediagallery | ithive.mediagallery |
+
 ## Вывод результата
 
 - **По умолчанию** — выводи чек-лист на экран
-- **Если пользователь попросил сохранить** — создай файл в `{YOUR_OBSIDIAN_VAULT_PATH}/Test Cases/`
-
-> **ВАЖНО:** Перед использованием замени `{YOUR_OBSIDIAN_VAULT_PATH}` на путь к твоему Obsidian vault. Например: `/Users/username/Documents/Obsidian/Test Cases/`
+- **Если пользователь попросил сохранить** — создай файл в папке `Test Cases/` внутри vault (путь к vault указан выше в секции «Vault location»)
 
 ## Сохранение в Test Cases/
 
 Когда пользователь просит сохранить, создай файл:
 
-**Путь:** `{YOUR_OBSIDIAN_VAULT_PATH}/Test Cases/{Module} - {Topic}.md`
+**Путь:** `Test Cases/{Module} - {Topic}.md` (внутри vault)
 
 **Frontmatter:**
 ```yaml
@@ -76,17 +103,23 @@ related: ["Module - Related1"]
 - Какой модуль затронут
 - Есть ли упоминания связанных модулей
 
-### 2. База знаний Obsidian
-Перед составлением чек-листа изучи:
-- Инструкции модуля в `Instructions/`
-- Файл модуля в `Modules/`
-- Связанные документы через wikilinks
-- MOC-файлы для понимания общей структуры
+### 2. База знаний Obsidian — стратегия поиска
 
-Это позволит тебе:
-- Учесть существующий функционал модуля (регрессия)
-- Найти связи с другими модулями (интеграционные проверки)
-- Понять контекст и бизнес-логику
+Перед составлением чек-листа пройди по шагам (строгий порядок):
+
+1. **`00 - Index.md`** — узнай какие модули есть, их теги, типы документов
+2. **`Modules/Module - {Название}.md`** — прочитай описание и функциональность модуля, список его инструкций, связанные модули
+3. **Конкретные инструкции** — найди нужные через:
+   - `MOC - Инструкции.md` → секция модуля → выбрать инструкцию по названию
+   - Или grep по тегу `#module/{slug}` в папке `Instructions/`
+4. **`Architecture.md`** — таблица зависимостей и группы модулей (критично для интеграционных проверок)
+
+Файлы инструкций называются по шаблону: `Instructions/{Module} - {Topic}.md`.
+
+Это даст тебе:
+- Полный список функций модуля для регрессии
+- Кросс-модульные зависимости для интеграционных проверок
+- Бизнес-контекст и предусловия
 
 ## Структура чек-листа
 

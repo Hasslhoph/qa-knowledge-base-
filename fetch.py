@@ -28,13 +28,14 @@ while page <= 10:
         break
     page += 1
 
-with open("files.txt", "w") as f:
-    for path in sorted(set(changed)):
-        enc = urllib.parse.quote(path, safe="")
-        raw_url = f"{API}/repository/files/{enc}/raw?ref=master"
-        raw_req = urllib.request.Request(raw_url, headers={"PRIVATE-TOKEN": TOKEN})
-        content = urllib.request.urlopen(raw_req).read()
-        basename = path.split("/")[-1]
-        with open(os.path.join(VAULT, basename), "wb") as fw:
-            fw.write(content)
-        f.write(path + "\n")
+if changed:
+    with open("files.txt", "w") as f:
+        for path in sorted(set(changed)):
+            enc = urllib.parse.quote(path, safe="")
+            raw_url = f"{API}/repository/files/{enc}/raw?ref=master"
+            raw_req = urllib.request.Request(raw_url, headers={"PRIVATE-TOKEN": TOKEN})
+            content = urllib.request.urlopen(raw_req).read()
+            basename = path.split("/")[-1]
+            with open(os.path.join(VAULT, basename), "wb") as fw:
+                fw.write(content)
+            f.write(path + "\n")

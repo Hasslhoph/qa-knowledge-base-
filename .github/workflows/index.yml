@@ -45,7 +45,10 @@ jobs:
             basename=$(basename "$path")
             echo "=== Index: $basename ==="
             opencode run "Index: $basename" --dir . --dangerously-skip-permissions --model opencode-go/deepseek-v4-flash --file prompt.txt 2>&1 || echo "FAILED: $basename"
-            rm -f "$basename"
+          done < files.txt
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            rm -f "$(basename "$path")"
           done < files.txt
           rm -f files.txt
           echo "$CURRENT" > .yana_last_commit

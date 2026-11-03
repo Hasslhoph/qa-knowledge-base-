@@ -58,6 +58,8 @@ GitHub Actions проверяет source-репозиторий раз в сут
 ```
 qa-knowledge-base-/
 ├── .github/workflows/index.yml   # Workflow CI
+├── .cursor/agents/               # Субагенты для Cursor (qa-teacher, qaithive)
+├── .claude/agents/               # Субагенты для Claude Code (те же два)
 ├── fetch.py                      # GitLab API client
 ├── prompt.txt                    # System prompt для нейросети
 ├── .yana_last_commit             # Последний обработанный коммит
@@ -66,6 +68,19 @@ qa-knowledge-base-/
 ├── MOC - Инструкции.md           # Оглавление
 └── MOC - Модули.md               # Оглавление модулей
 ```
+
+## Субагенты для Cursor и Claude Code
+
+В корне репозитория уже лежат два субагента — настраивать ничего не нужно,
+достаточно открыть папку в Cursor или запустить `claude` из корня:
+
+| Субагент | Что делает | Вызов в Cursor / Claude |
+|---|---|---|
+| `qa-teacher` | Отвечает на вопросы по модулям ithive по базе знаний (только чтение) | `/qa-teacher …` / «Use the qa-teacher subagent…» |
+| `qaithive` | Собирает чек-листы проверок, по запросу пишет их в `Test Cases/` | `/qaithive …` / «Use the qaithive subagent…» |
+
+Подробно про синтаксис, относительный и абсолютный путь к vault — в
+[инструкции по установке](obsidian-team-setup/README.md#9-cursor-и-claude-code--субагенты-уже-в-репозитории).
 
 ## Технологии
 

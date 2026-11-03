@@ -120,6 +120,10 @@ scoop install opencode
 
 Субагенты подключаются через глобальную конфигурацию opencode, чтобы они были доступны в любом проекте.
 
+> **Работаете в Cursor или Claude Code?** Этот раздел можно пропустить: субагенты
+> `qa-teacher` и `qaithive` уже лежат в корне репозитория в `.cursor/agents/` и
+> `.claude/agents/`. См. раздел 9.
+
 ### Шаг 1: Найди свою глобальную папку opencode
 
 - **macOS:** `~/.config/opencode/` (или `/Users/ТВОЕ_ИМЯ/.config/opencode/`)
@@ -411,61 +415,100 @@ notepad %APPDATA%\opencode\opencode.jsonc
 
 ---
 
-## 9. Работа с Cursor
+## 9. Cursor и Claude Code — субагенты уже в репозитории
 
-Субагенты opencode можно перенести в Cursor через `.cursor/agents/`.
-Отличие в синтаксисе: opencode использует `@qa-teacher`, Cursor — `/qa-teacher`.
-
-### Шаг 1: Создайте папку для субагентов
-
-В корне vault создайте папку `.cursor/agents/`:
+Субагенты `qa-teacher` и `qaithive` лежат в корне этого репозитория в двух форматах,
+поэтому после клонирования ничего вручную создавать не нужно:
 
 ```
-Obsidian/
+qa-knowledge-base/
 ├── .cursor/
 │   └── agents/
-│       ├── qa-teacher.md
+│       ├── qa-teacher.md     # readonly: true
 │       └── qaithive.md
+├── .claude/
+│   └── agents/
+│       ├── qa-teacher.md     # tools: Read, Grep, Glob
+│       └── qaithive.md       # tools: Read, Grep, Glob, Write, Edit
 ├── Instructions/
 ├── Modules/
 └── ...
 ```
 
-### Шаг 2: Подготовьте файлы субагентов
+### 9.1 Отличия синтаксиса
 
-Скопируйте содержимое из папки `agents/` архива, заменив YAML frontmatter
-на формат Cursor:
+| | opencode | Cursor (`.cursor/agents/`) | Claude Code (`.claude/agents/`) |
+|---|---|---|---|
+| Обязательные поля | — | `name`, `description` | `name`, `description` |
+| Запрет правок | `permission: edit: deny` | `readonly: true` | нет `Write`/`Edit` в `tools` |
+| Модель | — | `model: inherit` | `model:` можно не указывать |
+| Вызов | `@qa-teacher` | `/qa-teacher` | «Use the qa-teacher subagent» или `@qa-teacher` |
 
-**qa-teacher.md:**
+> Cursor читает и `.claude/agents/` (Claude-совместимость), но поле `tools` там
+> игнорируется. Поэтому для Cursor лежат отдельные файлы в `.cursor/agents/`
+> с `readonly: true` — при совпадении имён `.cursor/` имеет приоритет.
+
+Сами тела агентов общие — различается только frontmatter. Исходные версии для
+opencode остались в `obsidian-team-setup/agents/`.
+
+### 9.2 Вариант A — относительный путь (по умолчанию, ничего настраивать не нужно)
+
+В обоих файлах блок «База знаний» указывает на корень репозитория, а все пути
+(`00 - Index.md`, `Modules/`, `Instructions/`, `Architecture.md`, `Test Cases/`)
+считаются от него.
+
+**Что нужно:** просто открыть папку репозитория — в Cursor как проект, в Claude Code
+запустить `claude` из корня. Всё остальное агенты найдут сами.
+
+**Как вызвать:**
+
 ```
----
-name: qa-teacher
-description: Отвечает на вопросы по модулям ithive. Используй когда нужно узнать о настройке, функциональности или связях модулей.
-model: inherit
----
-[остальной текст из agents/qa-teacher.md]
+/qa-teacher как настроить уведомления в HelpDesk?
+/qaithive создай чек-лист для проверки создания тикета в HelpDesk
 ```
 
-**qaithive.md:**
+В Claude Code — та же формулировка, но через упоминание или просьбу делегировать:
+
 ```
----
-name: qaithive
-description: Создаёт чек-листы для QA. Используй для создания чек-листов проверок, регрессионного тестирования, новых фич.
-model: inherit
----
-[остальной текст из agents/qaithive.md]
+@qa-teacher как настроить SLA в HelpDesk?
+Use the qaithive subagent to create a checklist for the CSV export feature
 ```
 
-### Шаг 3: Как использовать
+Этот вариант подходит, если папка базы знаний и есть клон репозитория — тогда
+у всех одинаковые файлы и настройка не нужна.
 
-- **qa-teacher — вопросы по модулям:**
-  `/qa-teacher как настроить SLA в HelpDesk?`
+### 9.3 Вариант B — абсолютный путь (если vault лежит отдельно от репозитория)
 
-- **qaithive — создание чек-листов:**
-  `/qaithive создай чек-лист для проверки создания тикета`
+Если база знаний хранится, например, в `/Users/ИМЯ/Documents/Obsidian`, а агенты
+лежат в другом месте (или в глобальной папке `~/.cursor/agents/`), замените блок
+«База знаний» в начале каждого файла на абсолютный путь:
 
-Оба субагента видят всю базу знаний (Instructions/, Modules/) и работают
-в Cursor так же как в opencode.
+```
+## База знаний
 
-> **@obsidian-indexer** отдельным субагентом в Cursor не нужен — индексация
+База знаний: `/Users/ИМЯ/Documents/Obsidian`
+
+Пути ниже считаются от этой папки:
+- `00 - Index.md`
+- `Modules/Module - {Название}.md`
+- `Instructions/{Module} - {Topic}.md`
+- `Test Cases/{Module} - {Topic}.md`
+- `Architecture.md`
+```
+
+- **macOS:** `/Users/ИМЯ/Documents/Obsidian`
+- **Windows:** `C:\Users\ИМЯ\Documents\Obsidian`
+
+> Такие правки персональные: не коммитьте их в общий репозиторий, иначе
+> перезапишете пути у остальных. Для личного использования проще положить копию
+> файлов в `~/.cursor/agents/` или `~/.claude/agents/` и указать там абсолютный путь.
+
+### 9.4 Права субагентов
+
+- **qa-teacher** — только чтение: в Cursor `readonly: true`, в Claude нет `Write`/`Edit`
+  среди `tools`. Создавать, менять и удалять файлы он не может, shell-команды не запускает.
+- **qaithive** — пишет только в `Test Cases/`. В Claude у него есть `Write`/`Edit`
+  (без `Bash`), в Cursor — обычный режим с явным ограничением по папке в промпте.
+
+> **@obsidian-indexer** отдельным субагентом здесь не нужен — индексация
 > происходит автоматически раз в сутки в 10:00 UTC.
